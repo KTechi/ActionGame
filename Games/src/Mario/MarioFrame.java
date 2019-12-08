@@ -31,9 +31,18 @@ public class MarioFrame extends Frame implements Runnable, ActionListener, KeyLi
 	//////// Runnable ////////
 	@Override
 	public void run() {
+		int clock = 0;
+		boolean floating;
 		while (true) {
-			try { Thread.sleep(20); } catch (Exception e) {}
-			mc.gravity();
+			clock++;
+			try { Thread.sleep(5); } catch (Exception e) {}
+			
+			floating = mc.gravity(clock);
+			
+			if (!floating) {
+				clock = 0;
+				mc.jumpPower = 0;
+			}
 		}
 	}
 	

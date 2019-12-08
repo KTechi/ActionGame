@@ -7,8 +7,9 @@ public class MarioCanvas extends Canvas implements Runnable {
 	private static final long serialVersionUID = 1L;
 
 	private int windowLeft = 0;
-	private int fieldWidth = 800;
+	private int fieldWidth = 1000;
 	private int cellSize = 40;
+	public int jumpPower = 0;
 	public MovingObject mo = new MovingObject(200, 100, cellSize, cellSize);
 
 	public MarioCanvas() {
@@ -17,15 +18,18 @@ public class MarioCanvas extends Canvas implements Runnable {
 	}
 	
 	private int[][] field = {
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 2, 2, 1, 0, 0, 0, 0, 0, 0},
-		{0, 1, 1, 3, 2, 1, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-		{4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4},
-		{4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4},
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0},
+		{4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		{4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		{4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		{4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		{4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		{4, 4, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 2, 2, 1, 0, 0, 0, 0, 0, 0},
+		{4, 4, 0, 0, 1, 3, 2, 1, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0},
+		{4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		{4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		{4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4},
+		{4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4},
 	};
 	
 	@Override
@@ -46,6 +50,7 @@ public class MarioCanvas extends Canvas implements Runnable {
 			else if (field[i][j] == 2) str += "Blocks/QuestionBlock";
 			else if (field[i][j] == 3) str += "Blocks/EmptyBlock";
 			else if (field[i][j] == 4) str += "Blocks/StructureBlock";
+			else if (field[i][j] == 7) str += "Items/Mushroom";
 			
 			
 			str += "_LQ.png";
@@ -59,8 +64,8 @@ public class MarioCanvas extends Canvas implements Runnable {
 		}
 
 		g.drawImage(Toolkit.getDefaultToolkit().getImage("Mario/Structures/ShortPipe_LQ.png"),
-				windowLeft + 8 * cellSize,// x
-				h - (field.length - 5) * cellSize,// y
+				windowLeft + 10 * cellSize,// x
+				h - (field.length - 8) * cellSize,// y
 				2 * cellSize, 2 * cellSize, this);
 		g.drawImage(Toolkit.getDefaultToolkit().getImage("Mario/Items/Mushroom_LQ.png"),
 				mo.x, mo.y, mo.w, mo.h, this);
@@ -74,10 +79,14 @@ public class MarioCanvas extends Canvas implements Runnable {
 	}
 	
 	public void jump() {
-		mo.y -= 10;
+		mo.y -= 30;
+		jumpPower = 2;
+		System.out.println("hewr");
 	}
 
 	public void moveRight() {
+		if (field[field.length - (this.getHeight() - mo.y) / cellSize - 1][(-windowLeft + mo.x+mo.w) / cellSize] != 0) return;
+	
 		if (windowLeft + fieldWidth <= this.getWidth()) {
 			if (windowLeft + fieldWidth <= mo.x + mo.w) return;
 			else mo.x += 10;
@@ -86,6 +95,8 @@ public class MarioCanvas extends Canvas implements Runnable {
 	}
 	
 	public void moveLeft() {
+		if (field[field.length - (this.getHeight() - mo.y) / cellSize - 1][(-windowLeft + mo.x) / cellSize] != 0) return;
+		
 		if (0 <= windowLeft) {
 			if (mo.x <= 0) return;
 			else mo.x -= 10;
@@ -97,14 +108,13 @@ public class MarioCanvas extends Canvas implements Runnable {
 		mo.y += 10;
 	}
 	
-	public void gravity() {
-		System.out.printf("%d %d %d\n", field.length, this.getHeight()-mo.y+mo.h, (this.getHeight()-mo.y+mo.h)/cellSize);
-		if (field[field.length - (this.getHeight() - mo.y + mo.h) / cellSize - 1][mo.x / cellSize] != 0) return;
+	public boolean gravity(int clock) {
+		if (field[field.length - (this.getHeight() - mo.y - mo.h) / cellSize - 1][(-windowLeft + mo.x) / cellSize] != 0 ||
+			field[field.length - (this.getHeight() - mo.y - mo.h) / cellSize - 1][(-windowLeft + mo.x+mo.w) / cellSize] != 0 ) return false;
 		
-		mo.y += 1;
-//		windowLeft + j * cellSize,// x
-//		h - (field.length - i)*cellSize,// y
+		mo.y += (int) (clock * clock / 2 / 1000) - jumpPower;
 		
 		repaint();
+		return true;
 	}
 }
