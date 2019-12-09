@@ -3,19 +3,22 @@ package Mario;
 import java.awt.*;
 import java.awt.event.*;
 
-public class MarioFrame extends Frame implements Runnable, ActionListener, KeyListener, MouseListener, WindowListener {
+public class MarioFrame extends Frame implements Runnable, ActionListener, KeyListener, WindowListener {
 	private static final long serialVersionUID = 1L;
 	
 	private MarioCanvas mc;
+	private boolean jump = false;
+	private boolean movingDown = false;
+	private boolean movingLeft = false;
+	private boolean movingRight = false;
 	
 	public MarioFrame() {
-		setTitle("MarioX");
+		setTitle("Mario_X");
 		
 		mc = new MarioCanvas();
 		add(mc, BorderLayout.CENTER);
 		
 		//.addActionListener(this);
-		addMouseListener(this);
 		addKeyListener(this);
 		addWindowListener(this);
 		
@@ -23,83 +26,121 @@ public class MarioFrame extends Frame implements Runnable, ActionListener, KeyLi
 		setVisible(true);
 		
 		Thread th = new Thread(this);
-		th.start();
+		MoveVertical moveV = new MoveVertical();
+		MoveHorizontal moveH = new MoveHorizontal();
 		
-		while (true) requestFocusInWindow();
+		th.start();
+		moveV.start();
+		moveH.start();
+	}
+	
+	class MoveVertical extends Thread {
+		@Override
+		public void run() {
+			while (true) {
+				clock(1);
+				for (; jump; clock(3)) mc.jump();
+				for (; movingDown; clock(3)) mc.moveDown();
+			}
+		}
+	}
+	
+	class MoveHorizontal extends Thread {
+		@Override
+		public void run() {
+			while (true) {
+				clock(1);
+				for (; movingLeft; clock(3)) mc.moveLeft();
+				for (; movingRight; clock(3)) mc.moveRight();
+			}
+		}
+	}
+	
+	private void clock(int n) {
+		try {
+			Thread.sleep(n);
+		} catch (InterruptedException e) {
+			System.out.println(e);
+		}
 	}
 	
 	//////// Runnable ////////
 	@Override
 	public void run() {
-		int clock = 0;
-		boolean floating;
 		while (true) {
-			clock++;
-			try { Thread.sleep(5); } catch (Exception e) {}
-			
-			floating = mc.gravity(clock);
-			
-			if (!floating) {
-				clock = 0;
-				mc.jumpPower = 0;
-			}
+			clock(100);
+			requestFocusInWindow();
 		}
 	}
 	
 	//////// ActionListener ////////
 	@Override
-	public void actionPerformed(ActionEvent e) {
-		
-	}
-	
-	//////// MouseListener ////////
-	@Override
-	public void mouseClicked(MouseEvent e) {}
-	@Override
-	public void mousePressed(MouseEvent e) {}
-	@Override
-	public void mouseReleased(MouseEvent e) {}
-	@Override
-	public void mouseEntered(MouseEvent e) {}
-	@Override
-	public void mouseExited(MouseEvent e) {}
+	public void actionPerformed(ActionEvent e) {}
 	
 	//////// KeyListener ////////
 	@Override
-	public void keyTyped(KeyEvent e) {
-		//System.out.println("keyTyped");
-	}
-
+	public void keyTyped(KeyEvent e) {}
+	
 	@Override
 	public void keyPressed(KeyEvent e) {
 		
 		switch (e.getKeyCode()) {
-		case KeyEvent.VK_UP:
-		case KeyEvent.VK_W:
-		case KeyEvent.VK_SPACE:
-			mc.jump();
-			break;
-		case KeyEvent.VK_RIGHT:
-		case KeyEvent.VK_D:
-			mc.moveRight();
-			break;
-		case KeyEvent.VK_DOWN:
-		case KeyEvent.VK_S:
-			mc.crouch();
-			break;
-		case KeyEvent.VK_LEFT:
-		case KeyEvent.VK_A:
-			mc.moveLeft();
-			break;
-		}
 		
-		mc.repaint();
-		//System.out.println("keyPressed");
+			case KeyEvent.VK_UP:
+			case KeyEvent.VK_W:
+			case KeyEvent.VK_SPACE:
+				jump = true;
+				movingDown = false;
+				break;
+			
+			case KeyEvent.VK_DOWN:
+			case KeyEvent.VK_S:
+				movingDown = true;
+				jump = false;
+				break;
+			
+			case KeyEvent.VK_LEFT:
+			case KeyEvent.VK_A:
+				movingLeft = true;
+				movingRight = false;
+				break;
+			
+			case KeyEvent.VK_RIGHT:
+			case KeyEvent.VK_D:
+				movingRight = true;
+				movingLeft = false;
+				break;
+		}
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-		//System.out.println("keyReleased");
+		
+		switch (e.getKeyCode()) {
+		
+			case KeyEvent.VK_UP:
+			case KeyEvent.VK_W:
+			case KeyEvent.VK_SPACE:
+				jump = false;
+				break;
+			
+			case KeyEvent.VK_DOWN:
+			case KeyEvent.VK_S:
+				movingDown = false;
+				break;
+			
+			case KeyEvent.VK_LEFT:
+			case KeyEvent.VK_A:
+				movingLeft = false;
+				//惰性
+				break;
+			
+			case KeyEvent.VK_RIGHT:
+			case KeyEvent.VK_D:
+				movingRight = false;
+				//惰性
+				break;
+		}
 	}
 	
 	//////// WindowListener ////////
