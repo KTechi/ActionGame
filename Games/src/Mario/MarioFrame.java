@@ -107,8 +107,8 @@ public class MarioFrame extends Frame implements Runnable, ActionListener, KeyLi
 			
 			case KeyEvent.VK_RIGHT:
 			case KeyEvent.VK_D:
-				movingRight = true;
-				movingLeft = false;
+				mc.movingRight = movingRight = true;
+				mc.movingLeft = movingLeft = false;
 				break;
 		}
 	}

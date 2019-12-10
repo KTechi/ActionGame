@@ -6,7 +6,7 @@ public class MarioCanvas extends Canvas implements Runnable {
 	private static final long serialVersionUID = 1L;
 	
 	private final int CELL_SIZE = 50;
-	private final int FIELD_WIDTH = 30 * CELL_SIZE;
+	private final int FIELD_WIDTH = 62 * CELL_SIZE;
 	private int fieldLeft = 0;//画面がどれだけ、左にスクロースされたか（負整数）
 	private boolean jumping = false;//ジャンプ中
 	public boolean movingLeft = false;//左に移動中
@@ -14,30 +14,11 @@ public class MarioCanvas extends Canvas implements Runnable {
 	
 	private boolean tmp = true;
 	
-	public MovingObject movObj = new MovingObject(200, 100, CELL_SIZE-1, (int)(1.8*CELL_SIZE-1), "Mario/Enemies/KoopaWalking_LQ.png");
+	public MovingObject movObj = new MovingObject(200, 100, CELL_SIZE-1, (int)(1.8*CELL_SIZE-1), "Mario/MainChara/MarioStanding.png");
 	private StaticObject[] staObjs;//静的ブロック
 	//private MovingObject[] movObjs;//動的ブロック
 	
-	private int[][] field = {
-			{4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4},
-			{4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0},
-			{4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0},
-			{4, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0},
-			{4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0},
-			{4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0},
-			{4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5,-1, 0, 0, 0, 0, 4, 0},
-			{4, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,-1,-1, 0, 0, 0, 0, 4, 0},
-			{4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 4, 4, 0, 0, 0, 0, 4, 0},
-			{4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 4, 0},
-			{4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0},
-			{4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0},
-			{4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6,-1, 0, 0, 0, 0, 0, 4, 0},
-			{4, 0, 0, 0, 1, 3, 2, 1, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0,-1,-1, 0, 0, 0, 0, 0, 4, 0},
-			{4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 0,-1,-1, 0, 0, 0, 0, 0, 4, 0},
-			{4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0,-1,-1, 0, 0, 0, 0, 0, 4, 0},
-			{4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4},
-			{4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4},//15
-		};
+	private int[][] field = Field.field;
 	/*//////////////// ブロックの説明 ////////////////
 	 * -1: サイズが大きなブロックは、左上以外これで埋める
 	 *  0: 空気
@@ -51,6 +32,7 @@ public class MarioCanvas extends Canvas implements Runnable {
 	 * */
 	
 	public MarioCanvas() {
+		System.out.println(field[0].length);
 		String[] objectsName = {//静的なブロックの名前一覧
 				"Mario/Blocks/BrickBlock_LQ.png", "Mario/Blocks/QuestionBlock_LQ.png",
 				"Mario/Blocks/EmptyBlock_LQ.png", "Mario/Blocks/StructureBlock_LQ.png",
@@ -120,6 +102,8 @@ public class MarioCanvas extends Canvas implements Runnable {
 			myStop(10);
 			
 			while (isFloating() && !jumping) {//空中に浮いていて、ジャンプ中じゃない
+				movObj.name = "Mario/MainChara/MarioJumping.png";//////////////////////////////////////////////////////////////////////////////////////////////
+				
 				movObj.y += 2;
 				repaint();
 				myStop(tic);
@@ -127,6 +111,12 @@ public class MarioCanvas extends Canvas implements Runnable {
 				tmp = 700 / time;//インターバルは時刻に反比例（時間が経てばたつほど、重力のインターバルは短くなる）
 				tic = (3 <= tmp) ? tmp : 3;
 			}
+			
+			if (movingLeft) movObj.name = "Mario/MainChara/MarioLeft.png";//////////////////////////////////////////////////////////////////////////////////////////////
+			else if (movingRight) movObj.name = "Mario/MainChara/MarioRight.png";//////////////////////////////////////////////////////////////////////////////////////////////
+			else if (isFloating()) movObj.name = "Mario/MainChara/MarioJumping.png";//////////////////////////////////////////////////////////////////////////////////////////////
+			else movObj.name = "Mario/MainChara/MarioStanding.png";//////////////////////////////////////////////////////////////////////////////////////////////
+			repaint();
 		}
 	}
 	
@@ -139,11 +129,37 @@ public class MarioCanvas extends Canvas implements Runnable {
 	}
 	
 	public void jump() {
-		if (upIsCeiling() || isFloating()) return;//天井すれすれ OR 足場がない
+		if (upIsCeiling()) {
+			//////////////////////////////////////////////////////////////////////////////////ブロックを壊す
+			int x = getIndexOfFieldX(movObj.x + movObj.w/2);
+			int y = getIndexOfFieldY(movObj.y-2);
+			int blockType = field[y][x];
+			
+			if (blockType == 1) {
+				field[y][x] = 0;
+			} else if (blockType == 2) {
+				field[y][x] = 3;
+			}
+			//////////////////////////////////////////////////////////////////////////////ブロックを壊す
+			return;
+		}
+		if (isFloating()) return;//足場がない
 		
 		jumping = true;//空中に浮いている間「重力」を一旦無効化する
+		
 		for (int time = 450, tic = 2; 5 <= time;) {
 			if (upIsCeiling()) {//上が天井なら強制終了
+				//////////////////////////////////////////////////////////////////////////////////ブロックを壊す
+				int x = getIndexOfFieldX(movObj.x + movObj.w/2);
+				int y = getIndexOfFieldY(movObj.y-2);
+				int blockType = field[y][x];
+				
+				if (blockType == 1) {
+					field[y][x] = 0;
+				} else if (blockType == 2) {
+					field[y][x] = 3;
+				}
+				//////////////////////////////////////////////////////////////////////////////////ブロックを壊す
 				jumping = false;
 				return;
 			}
@@ -163,13 +179,10 @@ public class MarioCanvas extends Canvas implements Runnable {
 			//しゃがみ（画像を差し替える）
 			//
 			if (tmp) {
-				movObj.name = "Mario/Enemies/KoopaWalking_LQ.png";
 				movObj.y -= (int)(0.8*CELL_SIZE);
 				movObj.h = (int)(1.8*CELL_SIZE-1);
 				tmp = !tmp;
-			}
-			else {
-				//movObj.name = "Mario/Enemies/Bobomb_LQ.png";
+			} else {
 				movObj.y += (int)(0.8*CELL_SIZE);
 				movObj.h = CELL_SIZE-1;
 				tmp = !tmp;
@@ -177,6 +190,9 @@ public class MarioCanvas extends Canvas implements Runnable {
 			repaint();
 			myStop(300);
 			return;
+			//
+			//しゃがみ（画像を差し替える）
+			//
 		}
 		//作成途中
 		movObj.y += 1;
