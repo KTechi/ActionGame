@@ -5,101 +5,132 @@ import java.awt.*;
 public class MarioCanvas extends Canvas implements Runnable {
 	private static final long serialVersionUID = 1L;
 	
-	private final int CELL_SIZE = 40;
+	private final int CELL_SIZE = 50;
 	private final int FIELD_WIDTH = 30 * CELL_SIZE;
-	private int fieldLeft = 0;
-	private boolean jumping = false;
-	public MovingObject movObj = new MovingObject(200, 100, CELL_SIZE, CELL_SIZE, "Mario/Enemies/Bobomb_LQ.png");
-
+	private int fieldLeft = 0;//画面がどれだけ、左にスクロースされたか（負整数）
+	private boolean jumping = false;//ジャンプ中
+	public boolean movingLeft = false;//左に移動中
+	public boolean movingRight = false;//右に移動中
+	
+	private boolean tmp = true;
+	
+	public MovingObject movObj = new MovingObject(200, 100, CELL_SIZE-1, (int)(1.8*CELL_SIZE-1), "Mario/Enemies/KoopaWalking_LQ.png");
+	private StaticObject[] staObjs;//静的ブロック
+	//private MovingObject[] movObjs;//動的ブロック
+	
+	private int[][] field = {
+			{4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4},
+			{4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0},
+			{4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0},
+			{4, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0},
+			{4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0},
+			{4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0},
+			{4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5,-1, 0, 0, 0, 0, 4, 0},
+			{4, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,-1,-1, 0, 0, 0, 0, 4, 0},
+			{4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 4, 4, 0, 0, 0, 0, 4, 0},
+			{4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 4, 0},
+			{4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0},
+			{4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0},
+			{4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6,-1, 0, 0, 0, 0, 0, 4, 0},
+			{4, 0, 0, 0, 1, 3, 2, 1, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0,-1,-1, 0, 0, 0, 0, 0, 4, 0},
+			{4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 0,-1,-1, 0, 0, 0, 0, 0, 4, 0},
+			{4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0,-1,-1, 0, 0, 0, 0, 0, 4, 0},
+			{4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4},
+			{4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4},//15
+		};
+	/*//////////////// ブロックの説明 ////////////////
+	 * -1: サイズが大きなブロックは、左上以外これで埋める
+	 *  0: 空気
+	 *  1: レンガブロック
+	 *  2: ハテナブロック
+	 *  3: ハテナを叩いた後のブロック
+	 *  4: 土台ブロック
+	 *  5: 2x2 土管
+	 *  6: 2x4 土管
+	 *  7: 以降制作途中
+	 * */
+	
 	public MarioCanvas() {
+		String[] objectsName = {//静的なブロックの名前一覧
+				"Mario/Blocks/BrickBlock_LQ.png", "Mario/Blocks/QuestionBlock_LQ.png",
+				"Mario/Blocks/EmptyBlock_LQ.png", "Mario/Blocks/StructureBlock_LQ.png",
+				"Mario/Structures/ShortPipe_LQ.png", "Mario/Structures/LongPipe_LQ.png",
+		};
+		int[][] objectsSize = {//静的なブロックの大きさ一覧 [幅、高さ]
+				{CELL_SIZE, CELL_SIZE}, {CELL_SIZE, CELL_SIZE}, {CELL_SIZE, CELL_SIZE},
+				{CELL_SIZE, CELL_SIZE}, {2*CELL_SIZE, 2*CELL_SIZE}, {2*CELL_SIZE, 4*CELL_SIZE}
+		};
+		
+		if (objectsName.length != objectsSize.length) {//ブロック名の数とブロック数が違うとエラー
+			System.out.println("Error! Number ObjectsName and ObjectsSize is not equal");
+			System.exit(0);
+		}
+		
+		//静的なブロックの名前とサイズを登録
+		staObjs = new StaticObject[objectsName.length];
+		for (int i = 0; i < objectsName.length; i++)
+			staObjs[i] = new StaticObject(i + 1, objectsSize[i][0], objectsSize[i][1], objectsName[i]);
+
+		//重力スレッド開始
 		Thread th = new Thread(this);
 		th.start();
 	}
 	
-	private int[][] field = {
-		{4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4},
-		{4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0},
-		{4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0},
-		{4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0},
-		{4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0},
-		{4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-		{4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-		{4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-		{4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-		{4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-		{4, 4, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 2, 2, 1, 0, 0, 0, 0, 0, 0},
-		{4, 4, 0, 0, 1, 3, 2, 1, 0, 0, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0},
-		{4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-		{4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-		{4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4},
-		{4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4},//15
-	};
-	
 	@Override
 	public void paint(Graphics g) {
-		int w = this.getWidth();
 		int h = this.getHeight();
 		
-		g.setColor(new Color(108, 177, 231));
-		g.fillRect(0, 0, w, h);
+		g.setColor(new Color(108, 177, 231));//背景色　水色
+		g.fillRect(0, 0, this.getWidth(), h);
 		
-		String str;
+		int blockID, index;
 		
 		for (int i = 0; i < field.length; i++)
-		for (int j = 0; j < field[0].length; j++) {
-			if (field[i][j] == 0) continue;
+		for (int j = 0; j < field[0].length; j++) {//全フィールドの描画
+			blockID = field[i][j];
+			if (blockID == 0 || blockID == -1) continue;
 			
-			str = "Mario/";
-			if (field[i][j] == 1) str += "Blocks/BrickBlock";
-			else if (field[i][j] == 2) str += "Blocks/QuestionBlock";
-			else if (field[i][j] == 3) str += "Blocks/EmptyBlock";
-			else if (field[i][j] == 4) str += "Blocks/StructureBlock";
-			else if (field[i][j] == 7) str += "Items/Mushroom";
-			str += "_LQ.png";
+			//フィールドの番号と一致する、静的ブロックを探す
+			for (index = 0; index < staObjs.length; index++)
+				if (staObjs[index].ID == blockID) break;
 			
-			g.drawImage(Toolkit.getDefaultToolkit().getImage(str),
+			//index は静的ブロックの配列 satObjs[] の添字である
+			g.drawImage(Toolkit.getDefaultToolkit().getImage(staObjs[index].NAME),
 					fieldLeft + j * CELL_SIZE,// x
 					h - (field.length - i) * CELL_SIZE,// y
-					CELL_SIZE,// width
-					CELL_SIZE,// height
+					staObjs[index].W,// width
+					staObjs[index].H,// height
 					this
 				);
 		}
 		
-		int x = 10, y = 8;
-		g.drawImage(Toolkit.getDefaultToolkit().getImage("Mario/Structures/ShortPipe_LQ.png"),
-				fieldLeft + x * CELL_SIZE,// x
-				h - (field.length - y) * CELL_SIZE,// y
-				2 * CELL_SIZE, 2 * CELL_SIZE, this);
-		
+		//プレイヤーの描画
 		g.drawImage(Toolkit.getDefaultToolkit().getImage(movObj.name),
 				movObj.x, movObj.y, movObj.w, movObj.h, this);
 	}
 	
 	@Override
-	public void run() {
-		// 画面が用意できるまで待つ。
-		while (this.getHeight() < 100) stoplittle(100);
+	public void run() {//重力用のスレッド
+		while (this.getHeight() < 100) myStop(100);// 画面が用意できるまで待つ。
 		
-		int tic, time;
+		int tic, time, tmp;
 		while (true) {
-			tic = 100;
-			time = 0;
+			tic = 100;//重力を作用させるインターバル
+			time = 0;//経過時刻
+			myStop(10);
 			
-			stoplittle(10);
-			//空中に浮いていて、ジャンプ中じゃない
-			while (isFloating() && !jumping) {
-				movObj.y += 1;
+			while (isFloating() && !jumping) {//空中に浮いていて、ジャンプ中じゃない
+				movObj.y += 2;
 				repaint();
-				stoplittle(tic);
+				myStop(tic);
 				time += tic;
-				//インターバルは時刻に反比例（時間が経てばたつほど、重力のインターバルは短くなる）
-				if (2 <= 700 / time) tic = 700 / time;
+				tmp = 700 / time;//インターバルは時刻に反比例（時間が経てばたつほど、重力のインターバルは短くなる）
+				tic = (3 <= tmp) ? tmp : 3;
 			}
 		}
 	}
 	
-	private void stoplittle(int n) {
+	private void myStop(int n) {
 		try {
 			Thread.sleep(n);
 		} catch (InterruptedException e) {
@@ -108,24 +139,20 @@ public class MarioCanvas extends Canvas implements Runnable {
 	}
 	
 	public void jump() {
-		//既に空中にいる OR 天井すれすれ
-		if (isFloating() || upIsCeiling()) return;
+		if (upIsCeiling() || isFloating()) return;//天井すれすれ OR 足場がない
 		
-		//空中に浮いている間「重力」を一旦無効化する
-		jumping = true;
-		
+		jumping = true;//空中に浮いている間「重力」を一旦無効化する
 		for (int time = 450, tic = 2; 5 <= time;) {
-			//上が天井なら強制終了
-			if (upIsCeiling()) {
+			if (upIsCeiling()) {//上が天井なら強制終了
 				jumping = false;
 				return;
 			}
 			movObj.y -= 1;
 			repaint();
-			stoplittle(tic);
+			myStop(tic);
 			time -= tic;
-			//インターバルは時刻に反比例（時間が経てばたつほど、上昇のインターバルは長くなる）
-			if (2 <= 700 / time) tic = 700 / time;
+			int tmp = 700 / time;//インターバルは時刻に反比例（時間が経てばたつほど、上昇のインターバルは長くなる）
+			tic = (1 <= tmp) ? tmp : 1;
 		}
 		jumping = false;
 	}
@@ -135,11 +162,20 @@ public class MarioCanvas extends Canvas implements Runnable {
 			//
 			//しゃがみ（画像を差し替える）
 			//
-			System.out.println(movObj.name.charAt(15));
-			if (movObj.name.charAt(14) == 'B') movObj.name = "Mario/Items/1UpMushroom_LQ.png";
-			else movObj.name = "Mario/Enemies/Bobomb_LQ.png";
-			stoplittle(100);
+			if (tmp) {
+				movObj.name = "Mario/Enemies/KoopaWalking_LQ.png";
+				movObj.y -= (int)(0.8*CELL_SIZE);
+				movObj.h = (int)(1.8*CELL_SIZE-1);
+				tmp = !tmp;
+			}
+			else {
+				//movObj.name = "Mario/Enemies/Bobomb_LQ.png";
+				movObj.y += (int)(0.8*CELL_SIZE);
+				movObj.h = CELL_SIZE-1;
+				tmp = !tmp;
+			}
 			repaint();
+			myStop(300);
 			return;
 		}
 		//作成途中
@@ -148,61 +184,51 @@ public class MarioCanvas extends Canvas implements Runnable {
 	}
 	
 	public void moveLeft() {
-		//左が壁なら
-		if (leftIsWall()) return;
+		if (leftIsWall()) return;//左が壁なら
 		
-		//左端まで来た時の処理
-		if (0 <= fieldLeft) {
-			//プレイヤーが本当に左端のとき
-			if (movObj.x <= 0) return;
-			//まだ 20% が残っているとき
-			else movObj.x -= 1;
+		if (0 <= fieldLeft) {//左端まで来た時の処理
+			if (movObj.x <= 0) return;//プレイヤーが本当に左端のとき
+			else movObj.x -= 1;//まだ 20% が残っているとき
 		}//ウィンドウの 20% のところに来たら、プレイヤーではなく背景を動かす
 		else if (movObj.x < this.getWidth() * 0.2) fieldLeft += 1;
-		else movObj.x -= 1;
-		
+		else movObj.x -= 1;//プレイヤーを動かす
 		repaint();
 	}
 	
 	public void moveRight() {
-		//右が壁なら
-		if (rightIsWall()) return;
+		if (rightIsWall()) return;//右が壁なら
 		
-		//右端まで来た時の処理
-		if (fieldLeft + FIELD_WIDTH <= this.getWidth()) {
-			//プレイヤーが本当に右端のとき
-			if (fieldLeft + FIELD_WIDTH <= movObj.x + movObj.w) return;
-			//まだ 20% が残っているとき
-			else movObj.x += 1;
+		if (fieldLeft + FIELD_WIDTH <= this.getWidth()) {//右端まで来た時の処理
+			if (fieldLeft + FIELD_WIDTH <= movObj.x + movObj.w) return;//プレイヤーが本当に右端のとき
+			else movObj.x += 1;//まだ 20% が残っているとき
 		}//ウィンドウの 80% のところに来たら、プレイヤーではなく背景を動かす
 		else if (this.getWidth() * 0.8 < movObj.x + movObj.w) fieldLeft -= 1;
-		else movObj.x += 1;
-		
+		else movObj.x += 1;//プレイヤーを動かす
 		repaint();
 	}
 	
 	//引数：ウィンドウのY座標　返り値：配列のY座標
 	private int getIndexOfFieldY(int windowY) {
 		return field.length - 1 - (this.getHeight() - windowY) / CELL_SIZE;
-	}//引数：ウィンドウのX座標　返り値：配列のX座標
+	}
+	//引数：ウィンドウのX座標　返り値：配列のX座標
 	private int getIndexOfFieldX(int windowX) {
 		return (-fieldLeft + windowX) / CELL_SIZE;
 	}
-
-	//上が天井
-	private boolean upIsCeiling() {
+	
+	private boolean upIsCeiling() {//上が天井
 		return (field[getIndexOfFieldY(movObj.y - 1)][getIndexOfFieldX(movObj.x)] != 0) ||
 			   (field[getIndexOfFieldY(movObj.y - 1)][getIndexOfFieldX(movObj.x + movObj.w)] != 0);
-	}//浮いている
-	private boolean isFloating() {
-		return (field[getIndexOfFieldY(movObj.y + movObj.h + 1)][getIndexOfFieldX(movObj.x)] == 0) &&
-			   (field[getIndexOfFieldY(movObj.y + movObj.h + 1)][getIndexOfFieldX(movObj.x + movObj.w)] == 0);
-	}//左が壁
-	private boolean leftIsWall() {
+	}
+	private boolean isFloating() {//浮いている
+		return (field[getIndexOfFieldY(movObj.y + movObj.h + 2)][getIndexOfFieldX(movObj.x)] == 0) &&
+			   (field[getIndexOfFieldY(movObj.y + movObj.h + 2)][getIndexOfFieldX(movObj.x + movObj.w)] == 0);
+	}
+	private boolean leftIsWall() {//左が壁
 		return (field[getIndexOfFieldY(movObj.y           )][getIndexOfFieldX(movObj.x - 1)] != 0) ||
 			   (field[getIndexOfFieldY(movObj.y + movObj.h)][getIndexOfFieldX(movObj.x - 1)] != 0);
-	}//右が壁
-	private boolean rightIsWall() {
+	}
+	private boolean rightIsWall() {//右が壁
 		return (field[getIndexOfFieldY(movObj.y           )][getIndexOfFieldX(movObj.x + movObj.w + 1)] != 0) ||
 			   (field[getIndexOfFieldY(movObj.y + movObj.h)][getIndexOfFieldX(movObj.x + movObj.w + 1)] != 0);
 	}

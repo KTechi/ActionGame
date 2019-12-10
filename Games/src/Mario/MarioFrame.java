@@ -39,7 +39,7 @@ public class MarioFrame extends Frame implements Runnable, ActionListener, KeyLi
 		public void run() {
 			while (true) {
 				clock(1);
-				for (; jump; clock(3)) mc.jump();
+				for (; jump; clock(100)) mc.jump();
 				for (; movingDown; clock(3)) mc.moveDown();
 			}
 		}
@@ -50,8 +50,8 @@ public class MarioFrame extends Frame implements Runnable, ActionListener, KeyLi
 		public void run() {
 			while (true) {
 				clock(1);
-				for (; movingLeft; clock(3)) mc.moveLeft();
-				for (; movingRight; clock(3)) mc.moveRight();
+				for (; movingLeft; clock(2)) mc.moveLeft();
+				for (; movingRight; clock(2)) mc.moveRight();
 			}
 		}
 	}
@@ -101,8 +101,8 @@ public class MarioFrame extends Frame implements Runnable, ActionListener, KeyLi
 			
 			case KeyEvent.VK_LEFT:
 			case KeyEvent.VK_A:
-				movingLeft = true;
-				movingRight = false;
+				mc.movingLeft = movingLeft = true;
+				mc.movingRight = movingRight = false;
 				break;
 			
 			case KeyEvent.VK_RIGHT:
@@ -131,13 +131,13 @@ public class MarioFrame extends Frame implements Runnable, ActionListener, KeyLi
 			
 			case KeyEvent.VK_LEFT:
 			case KeyEvent.VK_A:
-				movingLeft = false;
+				mc.movingLeft = movingLeft = false;
 				//惰性
 				break;
 			
 			case KeyEvent.VK_RIGHT:
 			case KeyEvent.VK_D:
-				movingRight = false;
+				mc.movingRight = movingRight = false;
 				//惰性
 				break;
 		}
