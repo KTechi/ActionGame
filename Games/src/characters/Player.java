@@ -15,6 +15,7 @@ public class Player extends Character {
 
 		if(x <= gc.getWidth()*0.2 && gc.fieldLeft <= 0) return false;
 		if(gc.blockIs(x, y) != 0 || gc.blockIs(x, y+height) != 0) return true;
+		if(x <= 0) return true;
 
 		x--;
 		return true;
@@ -24,8 +25,9 @@ public class Player extends Character {
 
 	public boolean move_right() {
 
-		if(gc.getWidth()*0.8 <= x && gc.fieldLeft <= 0) return false;
+		if(gc.getWidth()*0.8 <= x && gc.getWidth() <= gc.fieldLeft + gc.fieldWidth) return false;
 		if(gc.blockIs(x+width, y) != 0 || gc.blockIs(x+width, y+height) != 0 ) return true;
+		if (gc.getWidth() <= x + width) return true;
 
 		x++;
 		return true;
@@ -45,7 +47,7 @@ public class Player extends Character {
 	public boolean move_down() {
 
 		if(gc.getHeight() <= y) return false;
-		if(gc.blockIs(x, y) != 0 || gc.blockIs(x+width, y) != 0) return true;
+		if(gc.blockIs(x, y+height) != 0 || gc.blockIs(x+width, y+height) != 0) return true;
 
 		y++;
 		return true;
@@ -58,11 +60,11 @@ public class Player extends Character {
 		while(true) {
 			tic = 100;
 			time = 0;
-
+			
 			while(gc.blockIs(x,y+height) == 0 && gc.blockIs(x+width,y+height) == 0) {//地面から落ちる
 				interval(tic);
 				time += tic;
-				temp -= 700/time;
+				temp = 700/time;
 				tic = (1 <= temp) ? temp : 1;
 				gravity();
 			}
