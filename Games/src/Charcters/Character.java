@@ -1,4 +1,4 @@
-package Charcters;
+package characters;
 
 public abstract class Character {
 	private int x, y;

@@ -1,10 +1,13 @@
-package Charcters;
+package characters;
+import application.GameCanvas;
 
 public class Player extends Character {
 	String status = "normal";
+	GameCanvas gc;
 
-	public Player() {
+	public Player(GameCanvas gamecanvas) {
 		super(100, 200, 50, 50);
+		gc = gamecanvas;
 	}
 
 
@@ -32,9 +35,13 @@ public class Player extends Character {
 	}
 
 
-	public void run() {
-		//blockの設定
-		int blockIs = GameCanavas.blockIs(this.getX(), this.getY());
+	public void run() {//重力
+
+		int l_blockIs = gc.blockIs(this.getX(), this.getY()+this.getHeight());
+		int r_blockIs = gc.blockIs(this.getX()+this.getWidth(), this.getY()+this.getHeight());
+
+		if(l_blockIs != 0 || r_blockIs != 0) return;
+
 		int time = 0;
 		int tic  = 100;
 
@@ -47,7 +54,6 @@ public class Player extends Character {
 
 
 	public void gravity() {
-		// TODO 自動生成されたメソッド・スタブ
 
 	}
 
