@@ -1,6 +1,6 @@
 package characters;
 
-public abstract class Character {
+public abstract class Character extends Thread {
 	public int x, y;
 	public int width, height;
 
